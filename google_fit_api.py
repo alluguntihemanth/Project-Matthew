@@ -8,20 +8,13 @@ import time
 
 
 def authenticate_user():
-    scopes = ["https://www.googleapis.com/auth/fitness.heart_rate.read"]
+    flow = InstalledAppFlow.from_client_secrets_file(
+        'client_secrets.json',
+        scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
+    )
 
-    # Check if user has already authenticated
-    if 'credentials' not in st.session_state:
-        client_secrets_path = os.path.join('credentials', 'client_secrets.json')
-
-        # Debug print to verify the path
-        print("Client secrets path:", client_secrets_path)
-        
-        flow = InstalledAppFlow.from_client_secrets_file(client_secrets_path, scopes=scopes)
-        #creds = flow.run_local_server(port=8504)  # Use the same port each time
-        
-        # Instead of running a local server, use the console flow
-        creds = flow.run_console()  # This will prompt the user to visit a URL and enter a code
+    # Run a local server and provide a redirect URI to your Streamlit app
+    creds = flow.run_local_server(port=8504)  # Ensure the redirect URI is configured in Google Cloud Console
 
         st.session_state.credentials = creds
 
