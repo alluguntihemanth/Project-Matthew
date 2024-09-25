@@ -8,10 +8,11 @@ import time
 
 
 def authenticate_user():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'client_secrets.json',
-        scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
+   flow = InstalledAppFlow.from_client_secrets_file(
+    'credentials/client_secrets.json',
+    scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
     )
+
 
     # Run a local server and provide a redirect URI to your Streamlit app
     creds = flow.run_local_server(port=8504)  # Ensure the redirect URI is configured in Google Cloud Console
