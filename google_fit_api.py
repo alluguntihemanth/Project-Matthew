@@ -8,15 +8,25 @@ import time
 
 
 def authenticate_user():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'client_secrets.json',  # Your OAuth client secrets file
-        scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']  # Example scope
-    )
+    scopes = ["https://www.googleapis.com/auth/fitness.heart_rate.read"]
 
-    # Instead of running a local server, use the console flow
-    creds = flow.run_console()  # This will prompt the user to visit a URL and enter a code
-    return creds
+    # Check if user has already authenticated
+    if 'credentials' not in st.session_state:
+        client_secrets_path = os.path.join('credentials', 'client_secrets.json')
 
+        # Debug print to verify the path
+        print("Client secrets path:", client_secrets_path)
+        
+        flow = InstalledAppFlow.from_client_secrets_file(client_secrets_path, scopes=scopes)
+        #creds = flow.run_local_server(port=8504)  # Use the same port each time
+        
+        # Instead of running a local server, use the console flow
+        creds = flow.run_console()  # This will prompt the user to visit a URL and enter a code
+
+        st.session_state.credentials = creds
+
+    return st.session_state.credentials
+   
 def fetch_heart_rate_data(creds):
     service = build('fitness', 'v1', credentials=creds)
 
