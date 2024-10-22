@@ -10,16 +10,8 @@ def authenticate_user():
     flow = InstalledAppFlow.from_client_secrets_file(
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
-        redirect_uri='http://localhost:8501/'  # Use the URI you're testing
+        redirect_uri='https://project-matthew-hemanthallugunti.streamlit.app/'  # Use the deployed URI
     )
-
-    # Generate the authorization URL
-    auth_url, _ = flow.authorization_url(access_type='offline')
-
-    # Store the flow for later use
-    st.session_state.flow = flow
-
-    return auth_url
 
 def fetch_heart_rate_data(creds):
     service = build('fitness', 'v1', credentials=creds)
