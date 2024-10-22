@@ -2,8 +2,8 @@ import os
 import streamlit as st
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
-import requests
 from googleapiclient.discovery import build
+import requests
 import time
 
 def authenticate_user():
@@ -12,23 +12,13 @@ def authenticate_user():
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
     )
 
-    # Get the authorization URL
+    # Generate the authorization URL
     auth_url, _ = flow.authorization_url(access_type='offline')
     
-    st.write("Please go to this URL to authorize the application:")
-    st.markdown(f"[Authorize Here]({auth_url})")  # Link for the user to click
-
-    # Ask for the authorization response URL
-    redirect_response = st.text_input("Paste the full redirect URL here:")
-
-    if redirect_response:
-        # Exchange the authorization code for credentials
-        flow.fetch_token(authorization_response=redirect_response)
-        creds = flow.credentials
-        st.session_state.credentials = creds
-        return st.session_state.credentials
-
-    return None
+    # Store the flow for later use
+    st.session_state.flow = flow
+    
+    return auth_url
 
 def fetch_heart_rate_data(creds):
     service = build('fitness', 'v1', credentials=creds)
@@ -59,4 +49,5 @@ def fetch_heart_rate_data(creds):
                 })
             return heart_rate_data
     return None
+
 
