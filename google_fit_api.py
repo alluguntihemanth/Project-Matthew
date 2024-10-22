@@ -11,25 +11,21 @@ def authenticate_user():
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
     )
+    
+    redirect_uri = 'https://project-matthew-hemanthallugunti.streamlit.app/'  # Ensure this matches Google Cloud Console
 
-    # Define the redirect_uri here but do not include it in the authorization_url()
-    redirect_uri = 'https://project-matthew-hemanthallugunti.streamlit.app/'
-
-    # Generate the authorization URL without specifying redirect_uri
-    auth_url, _ = flow.authorization_url(access_type='offline')
-
+    auth_url, _ = flow.authorization_url(access_type='offline', redirect_uri=redirect_uri)
     st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
 
-    # Check for the authorization code in the query parameters
-    query_params = st.query_params  # Updated to use st.query_params
-    if 'code' in query_params:
-        # Fetch the token with the correct redirect_uri
-        flow.fetch_token(authorization_response=query_params['code'], redirect_uri=redirect_uri)
+    # Use Streamlit's new method for getting query parameters
+    if 'code' in st.query_params:
+        flow.fetch_token(authorization_response=st.query_params['code'])
         creds = flow.credentials
         st.session_state.credentials = creds
         return creds
 
     return None
+
 
 def fetch_heart_rate_data(creds):
     service = build('fitness', 'v1', credentials=creds)
