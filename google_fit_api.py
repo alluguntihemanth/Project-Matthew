@@ -12,19 +12,16 @@ def authenticate_user():
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
     )
     
-    # Ensure no trailing slash
-    redirect_uri = 'https://project-matthew-hemanthallugunti.streamlit.app'
+    # Ensure this matches Google Cloud Console
+    redirect_uri = 'https://project-matthew-hemanthallugunti.streamlit.app/'  
 
-    auth_url, _ = flow.authorization_url(
-        access_type='offline',
-        redirect_uri=redirect_uri,
-        state='random_state_string'  # Optional for CSRF protection
-    )
-    
+    # Specify access_type and redirect_uri explicitly
+    auth_url, _ = flow.authorization_url(access_type='offline', redirect_uri=redirect_uri)
     st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
-    
-    if 'code' in st.query_params:
-        flow.fetch_token(authorization_response=st.query_params['code'])
+
+    # Check for the 'code' in query parameters
+    if 'code' in st.experimental_get_query_params():
+        flow.fetch_token(authorization_response=st.experimental_get_query_params()['code'][0])
         creds = flow.credentials
         st.session_state.credentials = creds
         return creds
