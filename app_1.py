@@ -1,4 +1,3 @@
-# app_1.py
 import streamlit as st
 from conv_agent import load_conv_agent, handle_chat
 from google_fit_api import authenticate_user, fetch_heart_rate_data
@@ -21,10 +20,11 @@ def main():
     heart_rate_data = None
     current_heart_rate = None
     if creds:
-        # Fetch and display heart rate data
+        # Fetch heart rate data
         heart_rate_data = fetch_heart_rate_data(creds)
         if heart_rate_data:
-            st.write("Heart rate data:", heart_rate_data)
+            # Remove or comment out this line to hide heart rate data
+            # st.write("Heart rate data:", heart_rate_data)
 
             # Extract the latest heart rate value
             current_heart_rate = heart_rate_data[-1]["heart_rate"]  # Latest data point
@@ -36,3 +36,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
