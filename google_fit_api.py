@@ -9,12 +9,13 @@ import time
 def authenticate_user():
     flow = InstalledAppFlow.from_client_secrets_file(
         'credentials/client_secrets.json',
-        scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
+        scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
+        redirect_uri='http://localhost:8504'  # Specify your redirect URI here
     )
 
     # Generate the authorization URL
     auth_url, _ = flow.authorization_url(access_type='offline')
-    
+
     # Store the flow for later use
     st.session_state.flow = flow
     
