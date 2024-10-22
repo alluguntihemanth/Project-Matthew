@@ -13,8 +13,6 @@ def authenticate_user():
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
     )
 
-
-
     # Run a local server and provide a redirect URI to your Streamlit app
     creds = flow.run_local_server(port=8504)  # Ensure the redirect URI is configured in Google Cloud Console
 
