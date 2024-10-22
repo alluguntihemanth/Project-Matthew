@@ -6,20 +6,30 @@ import requests
 from googleapiclient.discovery import build
 import time
 
-
 def authenticate_user():
     flow = InstalledAppFlow.from_client_secrets_file(
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read']
     )
 
-    # Run a local server and provide a redirect URI to your Streamlit app
-    creds = flow.run_local_server(port=8504)  # Ensure the redirect URI is configured in Google Cloud Console
+    # Get the authorization URL
+    auth_url, _ = flow.authorization_url(access_type='offline')
+    
+    st.write("Please go to this URL to authorize the application:")
+    st.markdown(f"[Authorize Here]({auth_url})")  # Link for the user to click
 
-    st.session_state.credentials = creds
+    # Ask for the authorization response URL
+    redirect_response = st.text_input("Paste the full redirect URL here:")
 
-    return st.session_state.credentials
-   
+    if redirect_response:
+        # Exchange the authorization code for credentials
+        flow.fetch_token(authorization_response=redirect_response)
+        creds = flow.credentials
+        st.session_state.credentials = creds
+        return st.session_state.credentials
+
+    return None
+
 def fetch_heart_rate_data(creds):
     service = build('fitness', 'v1', credentials=creds)
 
@@ -49,3 +59,4 @@ def fetch_heart_rate_data(creds):
                 })
             return heart_rate_data
     return None
+
