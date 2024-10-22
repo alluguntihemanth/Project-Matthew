@@ -7,33 +7,41 @@ import requests
 import time
 
 def authenticate_user():
+    """Authenticates the user and stores credentials in session state.
+
+    Returns:
+        Credentials object or None if not authenticated.
+    """
     flow = InstalledAppFlow.from_client_secrets_file(
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
     )
 
-    # Specify the redirect_uri to match what is configured in the Google Cloud Console
-    redirect_uri = 'https://project-matthew-hemanthallugunti.streamlit.app/'
+    # Define redirect URI
+    redirect_uri = st.session_state.get('redirect_uri', 
+                                         'https://project-matthew-hemanthallugunti.streamlit.app/')
 
-    # Generate the authorization URL
+    # Check if credentials already exist in session state
+    if 'credentials' in st.session_state:
+        return st.session_state['credentials']
+
+    # Generate authorization URL if not authenticated
     auth_url, _ = flow.authorization_url(access_type='offline', redirect_uri=redirect_uri)
-
     st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
 
-    # Check for the authorization code in the query parameters
+    # Check for authorization code in query params only if not already authenticated
     query_params = st.experimental_get_query_params()
     if 'code' in query_params:
-        flow.fetch_token(authorization_response=query_params['code'])
-        creds = flow.credentials
-        st.session_state.credentials = creds
-        return creds
+        try:
+            flow.fetch_token(authorization_response=query_params['code'])
+            creds = flow.credentials
+            st.session_state['credentials'] = creds
+            return creds
+        except Exception as e:
+            st.error(f"Error fetching credentials: {e}")
+            return None
 
     return None
-
-
-
-
-
 
 def fetch_heart_rate_data(creds):
     service = build('fitness', 'v1', credentials=creds)
