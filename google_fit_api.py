@@ -12,10 +12,10 @@ def authenticate_user():
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
     )
 
-    # Specify the redirect_uri to match what is configured in the Google Cloud Console
+    # Define the redirect_uri here but do not include it in the authorization_url()
     redirect_uri = 'https://project-matthew-hemanthallugunti.streamlit.app/'
 
-    # Generate the authorization URL without specifying redirect_uri here
+    # Generate the authorization URL without specifying redirect_uri
     auth_url, _ = flow.authorization_url(access_type='offline')
 
     st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
