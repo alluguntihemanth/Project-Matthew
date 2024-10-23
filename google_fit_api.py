@@ -5,33 +5,38 @@ from googleapiclient.discovery import build
 import time
 
 def authenticate_user():
-    st.write("Starting user authentication...")  # Debug line
+    """Authenticates the user and stores credentials in session state.
+    Returns:
+        Credentials object or None if not authenticated.
+    """
     flow = Flow.from_client_secrets_file(
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
         redirect_uri='https://project-matthew-hemanthallugunti.streamlit.app/'  # Use your app's deployed URL
     )
 
+    # Check if credentials already exist in session state
     if 'credentials' in st.session_state:
-        st.write("Using existing credentials...")  # Debug line
         return st.session_state['credentials']
 
-    # Access query params correctly
-    query_params = st.query_params  # Use this line to get query parameters
-    
-    st.write("Query parameters:", query_params)  # Debug line
-    
-    if 'code' in query_params:
-        code = query_params['code'][0]  # Make sure to extract the code correctly
-        flow.fetch_token(authorization_response=f"https://project-matthew-hemanthallugunti.streamlit.app/?code={code}")
-        creds = flow.credentials
-        st.session_state['credentials'] = creds
-        st.write("New credentials acquired.")  # Debug line
-        return creds
-    else:
-        auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
-        st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
-        return None
+    # Check for authorization code in query params
+    try:
+        if 'code' in st.experimental_get_query_params():
+            code = st.experimental_get_query_params()['code'][0]
+            flow.fetch_token(authorization_response=f"https://project-matthew-hemanthallugunti.streamlit.app/?code={code}")
+            creds = flow.credentials
+            st.session_state['credentials'] = creds
+            return creds
+        else:
+            # Generate authorization URL and ask the user to click on the link
+            auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+            st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
+
+    except Exception as e:
+        st.error(f"An error occurred during authentication: {e}")
+
+    return None
+
 
 
 def fetch_heart_rate_data(creds):
@@ -65,7 +70,6 @@ def fetch_heart_rate_data(creds):
             return heart_rate_data
     return None
 
-
 # Main function to handle app logic
 def main():
     creds = authenticate_user()
@@ -80,5 +84,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
