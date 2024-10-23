@@ -17,7 +17,6 @@ def main():
     # Load the conversational agent
     groq_chat, memory, system_prompt = load_conv_agent(groq_api_key)
 
-    heart_rate_data = None
     current_heart_rate = None
     if creds:
         # Fetch heart rate data
