@@ -15,7 +15,7 @@ def authenticate_user():
         return st.session_state['credentials']
 
     # Check for authorization code in query params
-    query_params = st.query_params()
+    query_params = st.experimental_get_query_params()
     
     if 'code' in query_params:
         code = query_params['code'][0]  # Make sure to extract the code correctly
@@ -28,6 +28,7 @@ def authenticate_user():
         st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
 
     return None
+
 
 def fetch_heart_rate_data(creds):
     """Fetches heart rate data from Google Fit API using user credentials."""
