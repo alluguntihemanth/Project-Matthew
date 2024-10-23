@@ -11,7 +11,10 @@ def main():
     st.title("Chat with Matthew!")
 
     # Initialize the Google Fit API and Groq client
+    # Application initialization code...
     creds = authenticate_user()
+    if not creds:
+        st.stop()  # Stop execution if authentication fails
     groq_api_key = st.secrets["groq"]["api_key"]
     
     # Load the conversational agent
