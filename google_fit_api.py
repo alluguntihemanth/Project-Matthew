@@ -20,20 +20,23 @@ def authenticate_user():
         return st.session_state['credentials']
 
     # Check for authorization code in query params
-    query_params = st.query_params()
+    try:
+        if 'code' in st.experimental_get_query_params():
+            code = st.experimental_get_query_params()['code'][0]
+            flow.fetch_token(authorization_response=f"https://project-matthew-hemanthallugunti.streamlit.app/?code={code}")
+            creds = flow.credentials
+            st.session_state['credentials'] = creds
+            return creds
+        else:
+            # Generate authorization URL and ask the user to click on the link
+            auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+            st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
 
-    if 'code' in query_params:
-        # Handle the exchange of the authorization code for tokens
-        flow.fetch_token(authorization_response=f"https://project-matthew-hemanthallugunti.streamlit.app/?code={query_params['code'][0]}")
-        creds = flow.credentials
-        st.session_state['credentials'] = creds
-        return creds
-    else:
-        # Generate authorization URL and ask the user to click on the link
-        auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
-        st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
+    except Exception as e:
+        st.error(f"An error occurred during authentication: {e}")
 
     return None
+
 
 
 def fetch_heart_rate_data(creds):
