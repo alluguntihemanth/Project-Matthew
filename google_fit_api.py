@@ -1,49 +1,43 @@
 import os
 import streamlit as st
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-import requests
 import time
 
 def authenticate_user():
     """Authenticates the user and stores credentials in session state.
-
     Returns:
         Credentials object or None if not authenticated.
     """
-    flow = InstalledAppFlow.from_client_secrets_file(
+    flow = Flow.from_client_secrets_file(
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
+        redirect_uri='https://project-matthew-hemanthallugunti.streamlit.app/'  # Use your app's deployed URL
     )
-
-    # Define redirect URI
-    redirect_uri = st.session_state.get('redirect_uri', 
-                                         'https://project-matthew-hemanthallugunti.streamlit.app/')
 
     # Check if credentials already exist in session state
     if 'credentials' in st.session_state:
         return st.session_state['credentials']
 
-    # Generate authorization URL if not authenticated
-    auth_url, _ = flow.authorization_url(access_type='offline', redirect_uri=redirect_uri)
-    st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
-
-    # Check for authorization code in query params only if not already authenticated
+    # Check for authorization code in query params
     query_params = st.experimental_get_query_params()
+
     if 'code' in query_params:
-        try:
-            flow.fetch_token(authorization_response=query_params['code'])
-            creds = flow.credentials
-            st.session_state['credentials'] = creds
-            return creds
-        except Exception as e:
-            st.error(f"Error fetching credentials: {e}")
-            return None
+        # Handle the exchange of the authorization code for tokens
+        flow.fetch_token(authorization_response=f"https://project-matthew-hemanthallugunti.streamlit.app/?code={query_params['code'][0]}")
+        creds = flow.credentials
+        st.session_state['credentials'] = creds
+        return creds
+    else:
+        # Generate authorization URL and ask the user to click on the link
+        auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+        st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
 
     return None
 
+
 def fetch_heart_rate_data(creds):
+    """Fetches heart rate data from Google Fit API using user credentials."""
     service = build('fitness', 'v1', credentials=creds)
 
     # Fetch heart rate data
@@ -72,5 +66,20 @@ def fetch_heart_rate_data(creds):
                 })
             return heart_rate_data
     return None
+
+# Main function to handle app logic
+def main():
+    creds = authenticate_user()
+    if creds:
+        heart_rate_data = fetch_heart_rate_data(creds)
+        if heart_rate_data:
+            st.write(heart_rate_data)
+        else:
+            st.write("No heart rate data found.")
+    else:
+        st.write("Please authorize access to your Google Fit data.")
+
+if __name__ == '__main__':
+    main()
 
 
