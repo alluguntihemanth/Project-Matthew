@@ -20,7 +20,7 @@ def authenticate_user():
         return st.session_state['credentials']
 
     # Check for authorization code in query params
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params()
 
     if 'code' in query_params:
         # Handle the exchange of the authorization code for tokens
