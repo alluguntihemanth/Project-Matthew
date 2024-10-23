@@ -9,19 +9,20 @@ def authenticate_user():
     flow = Flow.from_client_secrets_file(
         'credentials/client_secrets.json',
         scopes=['https://www.googleapis.com/auth/fitness.heart_rate.read'],
-        redirect_uri='https://project-matthew-hemanthallugunti.streamlit.app/'
+        redirect_uri='https://project-matthew-hemanthallugunti.streamlit.app/'  # Use your app's deployed URL
     )
 
     if 'credentials' in st.session_state:
         st.write("Using existing credentials...")  # Debug line
         return st.session_state['credentials']
 
-    # Check for authorization code in query params
-    query_params = st.query_params()
+    # Access query params as an attribute
+    query_params = st.experimental_get_query_params()  # Change here
+    
     st.write("Query parameters:", query_params)  # Debug line
     
     if 'code' in query_params:
-        code = query_params['code'][0]
+        code = query_params['code'][0]  # Make sure to extract the code correctly
         flow.fetch_token(authorization_response=f"https://project-matthew-hemanthallugunti.streamlit.app/?code={code}")
         creds = flow.credentials
         st.session_state['credentials'] = creds
@@ -31,8 +32,6 @@ def authenticate_user():
         auth_url, _ = flow.authorization_url(access_type='offline', include_granted_scopes='true')
         st.write(f'Please authorize the application: [Authorize Here]({auth_url})')
         return None
-
-
 
 
 def fetch_heart_rate_data(creds):
