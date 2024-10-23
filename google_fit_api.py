@@ -16,8 +16,8 @@ def authenticate_user():
         st.write("Using existing credentials...")  # Debug line
         return st.session_state['credentials']
 
-    # Access query params as an attribute
-    query_params = st.experimental_get_query_params()  # Change here
+    # Access query params correctly
+    query_params = st.query_params  # Use this line to get query parameters
     
     st.write("Query parameters:", query_params)  # Debug line
     
