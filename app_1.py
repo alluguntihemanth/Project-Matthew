@@ -11,22 +11,19 @@ def main():
     st.title("Chat with Matthew!")
 
     # Initialize the Google Fit API and Groq client
-    # Application initialization code...
     creds = authenticate_user()
-    if not creds:
-        st.stop()  # Stop execution if authentication fails
     groq_api_key = st.secrets["groq"]["api_key"]
     
     # Load the conversational agent
     groq_chat, memory, system_prompt = load_conv_agent(groq_api_key)
 
+    heart_rate_data = None
     current_heart_rate = None
     if creds:
-        # Fetch heart rate data
+        # Fetch and display heart rate data
         heart_rate_data = fetch_heart_rate_data(creds)
         if heart_rate_data:
-            # Remove or comment out this line to hide heart rate data
-            # st.write("Heart rate data:", heart_rate_data)
+            st.write("Heart rate data:", heart_rate_data)
 
             # Extract the latest heart rate value
             current_heart_rate = heart_rate_data[-1]["heart_rate"]  # Latest data point
